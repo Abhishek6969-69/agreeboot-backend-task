@@ -47,7 +47,9 @@ def compute_score(readings):
     pillar_counts = {p: 0 for p in PILLAR_WEIGHTS}
 
     for marker, (pillar, low, high) in REFERENCE_RANGES.items():
-        value = readings.get(marker, 0)
+        if marker not in readings:
+            continue
+        value = readings[marker]
         pillar_totals[pillar] += _marker_score(value, low, high)
         pillar_counts[pillar] += 1
 
