@@ -101,3 +101,18 @@ def test_user_can_access_own_report():
 
     assert response.status_code == 200
     assert response.json()["report_id"] == "r_100"
+
+
+
+def test_login_does_not_return_password():
+    response = client.post(
+        "/login",
+        json={
+            "username": "asha",
+            "password": "asha123",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "password_was" not in response.json()
+    assert "access_token" in response.json()

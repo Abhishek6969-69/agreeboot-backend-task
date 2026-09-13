@@ -108,7 +108,7 @@ def login(body: LoginRequest):
         SECRET_KEY,
         algorithm=ALGORITHM,
     )
-    return {"access_token": token, "password_was": body.password}
+    return {"access_token": token}
 
 
 @app.get("/reports/{report_id}")
