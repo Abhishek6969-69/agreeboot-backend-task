@@ -56,8 +56,12 @@ def compute_score(readings):
     pillars = {}
     total = 0.0
     for pillar, weight in PILLAR_WEIGHTS.items():
-        ratio = pillar_totals[pillar] / pillar_counts[pillar]
-        points = ratio * weight
+        if pillar_counts[pillar] == 0:
+            points = 0.0
+        else:
+           ratio = pillar_totals[pillar] / pillar_counts[pillar]
+           points = ratio * weight
+
         pillars[pillar] = round(points, 1)
         total += points
 
