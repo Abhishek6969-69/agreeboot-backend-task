@@ -14,7 +14,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 from scoring import compute_score
-
+from normalization import normalize_readings
 app = FastAPI(title="Lab Report API")
 security = HTTPBearer()
 
@@ -126,5 +126,6 @@ def get_score(report_id: str, user=Depends(current_user)):
 @app.patch("/reports/{report_id}/readings")
 def update_readings(report_id: str, body: ReadingsUpdate, user=Depends(current_user)):
     report = get_owned_report(report_id, user)
-    report["readings"].update(body.readings)
+    normalized_readings = normalize_readings(body.readings)
+    report["readings"].update(normalized_readings)
     return report

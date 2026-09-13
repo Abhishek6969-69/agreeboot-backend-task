@@ -116,3 +116,40 @@ def test_login_does_not_return_password():
     assert response.status_code == 200
     assert "password_was" not in response.json()
     assert "access_token" in response.json()
+
+
+def test_update_readings_normalizes_alias():
+    login_response = client.post(
+        "/login",
+        json={"username": "asha", "password": "asha123"},
+    )
+
+    token = login_response.json()["access_token"]
+
+    response = client.patch(
+        "/reports/r_100/readings",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"readings": {"FBS": 92}},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["readings"]["fasting_glucose"] == 92
+    assert "FBS" not in response.json()["readings"]
+
+
+def test_update_readings_ignores_unknown_marker():
+    login_response = client.post(
+        "/login",
+        json={"username": "asha", "password": "asha123"},
+    )
+
+    token = login_response.json()["access_token"]
+
+    response = client.patch(
+        "/reports/r_100/readings",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"readings": {"unknown_marker": 123}},
+    )
+
+    assert response.status_code == 200
+    assert "unknown_marker" not in response.json()["readings"]
