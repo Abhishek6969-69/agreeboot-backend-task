@@ -60,7 +60,16 @@ REPORTS = {
     },
 }
 
+def get_owned_report(report_id: str, user: dict):
+    report = REPORTS.get(report_id)
 
+    if not report:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if report["owner_id"] != user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    return report
 # ---------------------------------------------------------------- models
 
 class LoginRequest(BaseModel):
@@ -104,24 +113,18 @@ def login(body: LoginRequest):
 
 @app.get("/reports/{report_id}")
 def get_report(report_id: str, user=Depends(current_user)):
-    report = REPORTS.get(report_id)
-    if not report:
-        raise HTTPException(status_code=404, detail="Not found")
+    report = get_owned_report(report_id, user)
     return report
 
 
 @app.get("/reports/{report_id}/score")
 def get_score(report_id: str, user=Depends(current_user)):
-    report = REPORTS.get(report_id)
-    if not report:
-        raise HTTPException(status_code=404, detail="Not found")
+    report = get_owned_report(report_id, user)
     return compute_score(report["readings"])
 
 
 @app.patch("/reports/{report_id}/readings")
 def update_readings(report_id: str, body: ReadingsUpdate, user=Depends(current_user)):
-    report = REPORTS.get(report_id)
-    if not report:
-        raise HTTPException(status_code=404, detail="Not found")
+    report = get_owned_report(report_id, user)
     report["readings"].update(body.readings)
     return report
